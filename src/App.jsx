@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, json } from "react-router-dom";
 import Home from "../src/pages/home/Home";
 import Order from "../src/pages/order/Order";
 import Cart from "../src/pages/cart/Cart";
@@ -21,15 +21,43 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/order" element={<Order />} />
+            <Route
+              path="/order"
+              element={
+                <ProtectedRoute>
+                  <Order />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRouteForAdmin>
+                  <Dashboard />
+                </ProtectedRouteForAdmin>
+              }
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/productInfo/:id" element={<ProductInfo />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/addproduct" element={<AddProduct />} />
-            <Route path="/updateproduct" element={<UpdateProduct />} />
+            <Route
+              path="/addproduct"
+              element={
+                <ProtectedRouteForAdmin>
+                  <AddProduct />
+                </ProtectedRouteForAdmin>
+              }
+            />
+            <Route
+              path="/updateproduct"
+              element={
+                <ProtectedRouteForAdmin>
+                  <UpdateProduct />
+                </ProtectedRouteForAdmin>
+              }
+            />
             <Route path="/*" element={<NoPage />} />
           </Routes>
           <ToastContainer />
@@ -40,3 +68,24 @@ const App = () => {
 };
 
 export default App;
+
+// Protected Routes for Users
+export const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem("user");
+  if (user) {
+    return children;
+  } else {
+    return <Navigate to={"/login"} />;
+  }
+};
+
+// Protected Routes for Admin
+
+const ProtectedRouteForAdmin = ({ children }) => {
+  const admin = JSON.parse(localStorage.getItem("user"));
+  if (admin.user.email === "somnathmandal9211@gmail.com") {
+    return children;
+  } else {
+    return <Navigate to={"/login"} />;
+  }
+};
